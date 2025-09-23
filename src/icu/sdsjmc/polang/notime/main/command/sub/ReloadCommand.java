@@ -1,12 +1,15 @@
 package icu.sdsjmc.polang.notime.main.command.sub;
 
 import icu.sdsjmc.polang.notime.NoTime;
-import icu.sdsjmc.polang.notime.main.Handle;
+import icu.sdsjmc.polang.notime.main.command.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
+
+import static icu.sdsjmc.polang.notime.NoTime.kickTask;
 
 public class ReloadCommand implements SubCommand {
 
@@ -17,34 +20,41 @@ public class ReloadCommand implements SubCommand {
 
     @Override
     public boolean execute(CommandSender sender, Command cmd, String label, String[] args) {
-        NoTime plugin = NoTime.getPlugin(NoTime.class);
-        plugin.reloadConfig();
-        NoTime.config = plugin.getConfig();
-        NoTime.kickMessage = NoTime.config.getString("notime.kick-message")
-                .replace("&", "§").replace("§§", "&")
-                .replace("%start%", NoTime.config.getString("notime.start"))
-                .replace("%end%", NoTime.config.getString("notime.end"));
-        NoTime.noTimeEnable = NoTime.config.getBoolean("notime.enable", true);
-        if (NoTime.noTimeEnable) {
-            if (Handle.checkTime()) {
-                NoTime.instance.kickPlayers(NoTime.kickMessage);
-            }
+        //覆盖进去
+
+        NoTime plugin = NoTime.instance;
+        plugin.onLoad();
+
+        plugin.runKickTask();
+        if (NoTime.kickTask != null && NoTime.noTimeEnable) {
+            sender.sendMessage(NoTime.notimeTitle + "§e已成功加载了防沉迷");
+        } else {
+            sender.sendMessage(NoTime.notimeTitle + "§8§n未启用防沉迷功能");
         }
-        NoTime.instance.runTask();
 
         if (NoTime.executor != null) {
-            NoTime.instance.getLogger().info(NoTime.notime + "§a你已成功注销§c " + NoTime.executor.shutdownNow().size() + " §a个单时间任务");
-            NoTime.instance.runTask();
+            sender.sendMessage(NoTime.notimeTitle + "§7当前卸载了§c " + NoTime.executor.shutdownNow().size() + " §7个单时间任务");
+            plugin.run();
+            sender.sendMessage(NoTime.notimeTitle + "§e重新加载了§c " + NoTime.executor.getTaskCount() + " §e个循环任务");
         }
+
         if (NoTime.executorList != null) {
-            NoTime.instance.getLogger().info(NoTime.notime + "§a你已成功注销§c " + NoTime.executorList.shutdownNow().size() + " §a个多时间任务");
-            NoTime.instance.runTimes();
+            sender.sendMessage(NoTime.notimeTitle + "§7当前卸载了§c " + NoTime.executorList.shutdownNow().size() + " §7个多时间任务");
+            plugin.runTimes();
+            sender.sendMessage(NoTime.notimeTitle + "§e重新加载了§c " + NoTime.executorList.getTaskCount() + " §e个循环任务");
         }
+
         if (NoTime.executorFor != null) {
-            NoTime.instance.getLogger().info(NoTime.notime + "§a你已成功注销§c " + NoTime.executorFor.shutdownNow().size() + " §a个循环任务");
-            NoTime.instance.forTime();
+            sender.sendMessage(NoTime.notimeTitle + "§7当前卸载了§c " + NoTime.executorFor.shutdownNow().size() + " §7个循环任务");
+            plugin.forTime();
+            sender.sendMessage(NoTime.notimeTitle + "§e重新加载了§c " + NoTime.executorFor.getTaskCount() + " §e个循环任务");
         }
-        sender.sendMessage(NoTime.notime + "§f插件重载成功.");
+        sender.sendMessage(NoTime.notimeTitle);
+        sender.sendMessage(NoTime.notimeTitle + "§f插件重载成功.");
+        if (sender instanceof Player) {
+            plugin.getLogger().info("§f插件由 §c" + sender.getName() + " §f重载.");
+        }
+
         return true;
     }
 

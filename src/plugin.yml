@@ -1,12 +1,16 @@
 name: NoTime
 main: icu.sdsjmc.polang.notime.NoTime
-version: 1.3.6
+version: 1.4.0
 author: polang
 api-version: 1.13
 softdepend: [ PlaceholderAPI ]
 folia-supported: true
 commands:
   notime:
-    description: "重载 NoTime 配置文件."
-    permission: "NoTime.admin"
+    description: "notime总命令权限."
+    permission: "notime.admin"
     permission-message: "你无权使用该命令."
+permission:
+  notime.admin:
+      description: "notime命令权限，默认op拥有"
+      default: op

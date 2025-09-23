@@ -4,7 +4,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 /**
- * 定义存储定时任务数据时间为List的类
+ * 瀹氫箟瀛樺偍瀹氭椂浠诲姟鏁版嵁鏃堕棿涓篖ist鐨勭被
  */
 public class ScheduleDataTimes
 {

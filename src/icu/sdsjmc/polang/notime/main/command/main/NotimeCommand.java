@@ -3,7 +3,7 @@ package icu.sdsjmc.polang.notime.main.command.main;
 import icu.sdsjmc.polang.notime.NoTime;
 import icu.sdsjmc.polang.notime.main.command.CommandManager;
 import icu.sdsjmc.polang.notime.main.command.sub.ReloadCommand;
-import icu.sdsjmc.polang.notime.main.command.sub.SubCommand;
+import icu.sdsjmc.polang.notime.main.command.SubCommand;
 import icu.sdsjmc.polang.notime.main.command.sub.TestCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,10 +32,10 @@ public class NotimeCommand implements SubCommand, CommandExecutor, TabCompleter 
     @Override
     public boolean execute(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(NoTime.notime + "§7可输入以下命令.");
+            sender.sendMessage(NoTime.notimeTitle + "§7可输入以下命令.");
             for (SubCommand command : subCommandManager.getCommands().values())
             {
-                sender.sendMessage(NoTime.notime + "/notime " +command.getName());
+                sender.sendMessage(NoTime.notimeTitle + "/notime " +command.getName());
             }
             return false;
         }

@@ -1,11 +1,11 @@
 package icu.sdsjmc.polang.notime.hook;
 
 import icu.sdsjmc.polang.notime.NoTime;
+import icu.sdsjmc.polang.notime.main.NoTimeAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class PlaceholderAPI extends PlaceholderExpansion {
 
@@ -13,9 +13,11 @@ public class PlaceholderAPI extends PlaceholderExpansion {
     public String getIdentifier() {
         return "notime";
     }
+
     public String getName() {
         return "notime"; //名称
     }
+
     @Override
     public String getAuthor() {
         return "Polang_";
@@ -25,31 +27,40 @@ public class PlaceholderAPI extends PlaceholderExpansion {
     public String getVersion() {
         return "1.0.0";
     }
+
     @Override
     public boolean persist() {
         return true; //防止 PlaceholderAPI 在扩展重载的时候把它注销
     }
-    @Override
-    public String onRequest(OfflinePlayer player, String s) {
-        List<String> list = new ArrayList<>();
-        // 遍历配置文件中的每个定时任务
-        for (String key : NoTime.config.getConfigurationSection("run").getKeys(false)) {
-            String path = "run." + key;
-            if (!NoTime.config.isString(path + ".fortime")) {
-                list.add(key);
-            }
-        }
-        for (String str : list)
-        {
-            String name = s.substring(0, s.indexOf("_"));
-            if (str.contains(name))
-            {
 
-                String str2 = s.substring(s.indexOf("_") + 1);
-                return str2;
-//                return Handle.parseTime(str2, name);
-            }
+    @Override
+    public String onRequest(OfflinePlayer player, String params) {
+        // 解析参数，格式为: 任务名_时间单位 例如: 测试1_m
+        String[] parts = params.split("_");
+        if (parts.length < 2) {
+            return "0";
         }
-    return "0";
+
+        String taskName = parts[0];
+        String timeUnit = parts[1];
+
+        // 检查任务是否存在
+        String path = "run." + taskName;
+        if (!NoTime.config.contains(path)) {
+            return "0";
+        }
+        long secondsUntilExecution = NoTimeAPI.getTimeUntilNextExecution(taskName);
+        switch (timeUnit.toLowerCase()) {
+            case "s":
+                return String.valueOf(secondsUntilExecution);
+            case "m":
+                return String.valueOf(TimeUnit.SECONDS.toMinutes(secondsUntilExecution));
+            case "h":
+                return String.valueOf(TimeUnit.SECONDS.toHours(secondsUntilExecution));
+            case "d":
+                return String.valueOf(TimeUnit.SECONDS.toDays(secondsUntilExecution));
+            default:
+                return "0";
+        }
     }
 }

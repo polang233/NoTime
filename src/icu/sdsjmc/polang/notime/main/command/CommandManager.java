@@ -1,7 +1,6 @@
 package icu.sdsjmc.polang.notime.main.command;
 
 import icu.sdsjmc.polang.notime.NoTime;
-import icu.sdsjmc.polang.notime.main.command.sub.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -20,10 +19,10 @@ public class CommandManager {
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(NoTime.notime + "§7可输入以下命令.");
+            sender.sendMessage(NoTime.notimeTitle + "§7可输入以下命令.");
             for (SubCommand command : commands.values())
             {
-                sender.sendMessage(NoTime.notime + "/notime " +command.getName());
+                sender.sendMessage(NoTime.notimeTitle + "/notime " +command.getName());
             }
             return false;
         }
@@ -35,7 +34,7 @@ public class CommandManager {
             System.arraycopy(args, 1, subArgs, 0, args.length - 1);
             return subCommand.execute(sender, cmd, label, subArgs);
         } else {
-            sender.sendMessage(NoTime.notime + "§c未知的子命令.");
+            sender.sendMessage(NoTime.notimeTitle + "§c未知的子命令.");
             return false;
         }
     }

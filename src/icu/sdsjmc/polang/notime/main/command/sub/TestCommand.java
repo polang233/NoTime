@@ -1,6 +1,8 @@
 package icu.sdsjmc.polang.notime.main.command.sub;
 
 import icu.sdsjmc.polang.notime.NoTime;
+import icu.sdsjmc.polang.notime.main.NoTimeAPI;
+import icu.sdsjmc.polang.notime.main.command.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -12,6 +14,8 @@ public class TestCommand implements SubCommand {
         return "test";
     }
 
+    public static List<String> list = new ArrayList<>();
+
     @Override
     public boolean execute(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0) {
@@ -22,7 +26,7 @@ public class TestCommand implements SubCommand {
         if (NoTime.config.getStringList("run." + args[0] + ".command") != null) {
             List<String> commands = NoTime.config.getStringList("run." + args[0] + ".command");
             for (String command : commands) {
-                NoTime.instance.operate(command);
+                NoTimeAPI.operate(command);
             }
             sender.sendMessage("§a运行" + args[0] + "定时任务成功");
         } else {
@@ -34,14 +38,6 @@ public class TestCommand implements SubCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-        List<String> list = new ArrayList<>();
-        // 遍历配置文件中的每个定时任务
-        for (String key : NoTime.config.getConfigurationSection("run").getKeys(false)) {
-            String path = "run." + key;
-            if (!NoTime.config.isString(path + ".fortime")) {
-                list.add(key);
-            }
-        }
         return list;
     }
 }
