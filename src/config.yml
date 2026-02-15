@@ -5,6 +5,9 @@ notime:
   # 白名单，时限内可进入且不会被踢出的玩家ID(请更改此处，默认为作者的ID)
   whitelist:
     - "Polang_"
+  # 黑名单，此列只要存在玩家ID将开启黑名单模式(覆盖白名单)，仅该列表里的玩家无法进入
+  blacklist:
+    - ""
   # 起始时间
   start: "00:00"
   # 结束时间
@@ -15,6 +18,7 @@ notime:
   kick-old: true
   # 反选，改为仅设定的时间内玩家才可以进入
   opposite: false
+
 
 # 自定义时间命令
 run:

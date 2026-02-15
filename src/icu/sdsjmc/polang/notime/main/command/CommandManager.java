@@ -4,10 +4,7 @@ import icu.sdsjmc.polang.notime.NoTime;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+    import java.util.*;
 
 public class CommandManager {
 
@@ -20,9 +17,8 @@ public class CommandManager {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0) {
             sender.sendMessage(NoTime.notimeTitle + "§7可输入以下命令.");
-            for (SubCommand command : commands.values())
-            {
-                sender.sendMessage(NoTime.notimeTitle + "/notime " +command.getName());
+            for (SubCommand command : commands.values()) {
+                sender.sendMessage(NoTime.notimeTitle + "/notime " + command.getName());
             }
             return false;
         }
@@ -52,7 +48,7 @@ public class CommandManager {
             return subCommand.tabComplete(sender, cmd, label, subArgs);
         }
 
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     public Map<String, SubCommand> getCommands() {

@@ -1,5 +1,8 @@
 package icu.sdsjmc.polang.notime.main.player;
 
+import com.destroystokyo.paper.Title;
+import com.destroystokyo.paper.profile.PlayerProfile;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
@@ -7,10 +10,13 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.PistonMoveReaction;
+import org.bukkit.block.Sign;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.map.MapView;
@@ -23,6 +29,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -36,518 +43,8 @@ public class SbPlayer {
         else
             return new Player() {
                 @Override
-                public <T extends Projectile> T launchProjectile(Class<? extends T> aClass) {
-                    return null;
-                }
-
-                @Override
-                public <T extends Projectile> T launchProjectile(Class<? extends T> aClass, Vector vector) {
-                    return null;
-                }
-
-                @Override
-                public void sendPluginMessage(Plugin plugin, String s, byte[] bytes) {
-
-                }
-
-                @Override
-                public Set<String> getListeningPluginChannels() {
-                    return null;
-                }
-
-                @Override
-                public boolean isOp() {
-                    return false;
-                }
-
-                @Override
-                public void setOp(boolean b) {
-
-                }
-
-                @Override
-                public boolean isPermissionSet(String s) {
-                    return false;
-                }
-
-                @Override
-                public boolean isPermissionSet(Permission permission) {
-                    return false;
-                }
-
-                @Override
-                public boolean hasPermission(String s) {
-                    return false;
-                }
-
-                @Override
-                public boolean hasPermission(Permission permission) {
-                    return false;
-                }
-
-                @Override
-                public PermissionAttachment addAttachment(Plugin plugin, String s, boolean b) {
-                    return null;
-                }
-
-                @Override
-                public PermissionAttachment addAttachment(Plugin plugin) {
-                    return null;
-                }
-
-                @Override
-                public PermissionAttachment addAttachment(Plugin plugin, String s, boolean b, int i) {
-                    return null;
-                }
-
-                @Override
-                public PermissionAttachment addAttachment(Plugin plugin, int i) {
-                    return null;
-                }
-
-                @Override
-                public void removeAttachment(PermissionAttachment permissionAttachment) {
-
-                }
-
-                @Override
-                public void recalculatePermissions() {
-
-                }
-
-                @Override
-                public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-                    return null;
-                }
-
-                @Override
-                public void setMetadata(String s, MetadataValue metadataValue) {
-
-                }
-
-                @Override
-                public List<MetadataValue> getMetadata(String s) {
-                    return null;
-                }
-
-                @Override
-                public boolean hasMetadata(String s) {
-                    return false;
-                }
-
-                @Override
-                public void removeMetadata(String s, Plugin plugin) {
-
-                }
-
-                @Override
-                public String getCustomName() {
-                    return null;
-                }
-
-                @Override
-                public void setCustomName(String s) {
-
-                }
-
-                @Override
-                public void damage(double v) {
-
-                }
-
-                @Override
-                public void damage(double v, Entity entity) {
-
-                }
-
-                @Override
-                public double getHealth() {
-                    return 0;
-                }
-
-                @Override
-                public void setHealth(double v) {
-
-                }
-
-                @Override
-                public double getMaxHealth() {
-                    return 0;
-                }
-
-                @Override
-                public void setMaxHealth(double v) {
-
-                }
-
-                @Override
-                public void resetMaxHealth() {
-
-                }
-
-                @Override
-                public AttributeInstance getAttribute(Attribute attribute) {
-                    return null;
-                }
-
-                @Override
-                public double getEyeHeight() {
-                    return 0;
-                }
-
-                @Override
-                public double getEyeHeight(boolean b) {
-                    return 0;
-                }
-
-                @Override
-                public Location getEyeLocation() {
-                    return null;
-                }
-
-                @Override
-                public List<Block> getLineOfSight(Set<Material> set, int i) {
-                    return null;
-                }
-
-                @Override
-                public Block getTargetBlock(Set<Material> set, int i) {
-                    return null;
-                }
-
-                @Override
-                public List<Block> getLastTwoTargetBlocks(Set<Material> set, int i) {
-                    return null;
-                }
-
-                @Override
-                public int getRemainingAir() {
-                    return 0;
-                }
-
-                @Override
-                public void setRemainingAir(int i) {
-
-                }
-
-                @Override
-                public int getMaximumAir() {
-                    return 0;
-                }
-
-                @Override
-                public void setMaximumAir(int i) {
-
-                }
-
-                @Override
-                public int getMaximumNoDamageTicks() {
-                    return 0;
-                }
-
-                @Override
-                public void setMaximumNoDamageTicks(int i) {
-
-                }
-
-                @Override
-                public double getLastDamage() {
-                    return 0;
-                }
-
-                @Override
-                public void setLastDamage(double v) {
-
-                }
-
-                @Override
-                public int getNoDamageTicks() {
-                    return 0;
-                }
-
-                @Override
-                public void setNoDamageTicks(int i) {
-
-                }
-
-                @Override
-                public Player getKiller() {
-                    return null;
-                }
-
-                @Override
-                public boolean addPotionEffect(PotionEffect potionEffect) {
-                    return false;
-                }
-
-                @Override
-                public boolean addPotionEffect(PotionEffect potionEffect, boolean b) {
-                    return false;
-                }
-
-                @Override
-                public boolean addPotionEffects(Collection<PotionEffect> collection) {
-                    return false;
-                }
-
-                @Override
-                public boolean hasPotionEffect(PotionEffectType potionEffectType) {
-                    return false;
-                }
-
-                @Override
-                public PotionEffect getPotionEffect(PotionEffectType potionEffectType) {
-                    return null;
-                }
-
-                @Override
-                public void removePotionEffect(PotionEffectType potionEffectType) {
-
-                }
-
-                @Override
-                public Collection<PotionEffect> getActivePotionEffects() {
-                    return null;
-                }
-
-                @Override
-                public boolean hasLineOfSight(Entity entity) {
-                    return false;
-                }
-
-                @Override
-                public boolean getRemoveWhenFarAway() {
-                    return false;
-                }
-
-                @Override
-                public void setRemoveWhenFarAway(boolean b) {
-
-                }
-
-                @Override
-                public EntityEquipment getEquipment() {
-                    return null;
-                }
-
-                @Override
-                public void setCanPickupItems(boolean b) {
-
-                }
-
-                @Override
-                public boolean getCanPickupItems() {
-                    return false;
-                }
-
-                @Override
-                public boolean isLeashed() {
-                    return false;
-                }
-
-                @Override
-                public Entity getLeashHolder() throws IllegalStateException {
-                    return null;
-                }
-
-                @Override
-                public boolean setLeashHolder(Entity entity) {
-                    return false;
-                }
-
-                @Override
-                public boolean isGliding() {
-                    return false;
-                }
-
-                @Override
-                public void setGliding(boolean b) {
-
-                }
-
-                @Override
-                public void setAI(boolean b) {
-
-                }
-
-                @Override
-                public boolean hasAI() {
-                    return false;
-                }
-
-                @Override
-                public void setCollidable(boolean b) {
-
-                }
-
-                @Override
-                public boolean isCollidable() {
-                    return false;
-                }
-
-                @Override
-                public String getName() {
-                    return "notime_sb";
-                }
-
-                @Override
-                public PlayerInventory getInventory() {
-                    return null;
-                }
-
-                @Override
-                public Inventory getEnderChest() {
-                    return null;
-                }
-
-                @Override
-                public MainHand getMainHand() {
-                    return null;
-                }
-
-                @Override
-                public boolean setWindowProperty(InventoryView.Property property, int i) {
-                    return false;
-                }
-
-                @Override
-                public InventoryView getOpenInventory() {
-                    return null;
-                }
-
-                @Override
-                public InventoryView openInventory(Inventory inventory) {
-                    return null;
-                }
-
-                @Override
-                public InventoryView openWorkbench(Location location, boolean b) {
-                    return null;
-                }
-
-                @Override
-                public InventoryView openEnchanting(Location location, boolean b) {
-                    return null;
-                }
-
-                @Override
-                public void openInventory(InventoryView inventoryView) {
-
-                }
-
-                @Override
-                public InventoryView openMerchant(Villager villager, boolean b) {
-                    return null;
-                }
-
-                @Override
-                public InventoryView openMerchant(Merchant merchant, boolean b) {
-                    return null;
-                }
-
-                @Override
-                public void closeInventory() {
-
-                }
-
-                @Override
-                public ItemStack getItemInHand() {
-                    return null;
-                }
-
-                @Override
-                public void setItemInHand(ItemStack itemStack) {
-
-                }
-
-                @Override
-                public ItemStack getItemOnCursor() {
-                    return null;
-                }
-
-                @Override
-                public void setItemOnCursor(ItemStack itemStack) {
-
-                }
-
-                @Override
-                public boolean hasCooldown(Material material) {
-                    return false;
-                }
-
-                @Override
-                public int getCooldown(Material material) {
-                    return 0;
-                }
-
-                @Override
-                public void setCooldown(Material material, int i) {
-
-                }
-
-                @Override
-                public boolean isSleeping() {
-                    return false;
-                }
-
-                @Override
-                public int getSleepTicks() {
-                    return 0;
-                }
-
-                @Override
-                public GameMode getGameMode() {
-                    return null;
-                }
-
-                @Override
-                public void setGameMode(GameMode gameMode) {
-
-                }
-
-                @Override
-                public boolean isBlocking() {
-                    return false;
-                }
-
-                @Override
-                public boolean isHandRaised() {
-                    return false;
-                }
-
-                @Override
-                public int getExpToLevel() {
-                    return 0;
-                }
-
-                @Override
-                public Entity getShoulderEntityLeft() {
-                    return null;
-                }
-
-                @Override
-                public void setShoulderEntityLeft(Entity entity) {
-
-                }
-
-                @Override
-                public Entity getShoulderEntityRight() {
-                    return null;
-                }
-
-                @Override
-                public void setShoulderEntityRight(Entity entity) {
-
-                }
-
-                @Override
-                public Map<String, Object> serialize() {
-                    return null;
-                }
-
-                @Override
                 public String getDisplayName() {
-                    return null;
+                    return "";
                 }
 
                 @Override
@@ -557,7 +54,7 @@ public class SbPlayer {
 
                 @Override
                 public String getPlayerListName() {
-                    return null;
+                    return "";
                 }
 
                 @Override
@@ -578,31 +75,6 @@ public class SbPlayer {
                 @Override
                 public InetSocketAddress getAddress() {
                     return null;
-                }
-
-                @Override
-                public boolean isConversing() {
-                    return false;
-                }
-
-                @Override
-                public void acceptConversationInput(String s) {
-
-                }
-
-                @Override
-                public boolean beginConversation(Conversation conversation) {
-                    return false;
-                }
-
-                @Override
-                public void abandonConversation(Conversation conversation) {
-
-                }
-
-                @Override
-                public void abandonConversation(Conversation conversation, ConversationAbandonedEvent conversationAbandonedEvent) {
-
                 }
 
                 @Override
@@ -747,6 +219,76 @@ public class SbPlayer {
 
                 @Override
                 public void sendMap(MapView mapView) {
+
+                }
+
+                @Override
+                public void sendActionBar(String s) {
+
+                }
+
+                @Override
+                public void sendActionBar(char c, String s) {
+
+                }
+
+                @Override
+                public void setPlayerListHeaderFooter(BaseComponent[] baseComponents, BaseComponent[] baseComponents1) {
+
+                }
+
+                @Override
+                public void setPlayerListHeaderFooter(BaseComponent baseComponent, BaseComponent baseComponent1) {
+
+                }
+
+                @Override
+                public void setTitleTimes(int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void setSubtitle(BaseComponent[] baseComponents) {
+
+                }
+
+                @Override
+                public void setSubtitle(BaseComponent baseComponent) {
+
+                }
+
+                @Override
+                public void showTitle(BaseComponent[] baseComponents) {
+
+                }
+
+                @Override
+                public void showTitle(BaseComponent baseComponent) {
+
+                }
+
+                @Override
+                public void showTitle(BaseComponent[] baseComponents, BaseComponent[] baseComponents1, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void showTitle(BaseComponent baseComponent, BaseComponent baseComponent1, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void sendTitle(Title title) {
+
+                }
+
+                @Override
+                public void updateTitle(Title title) {
+
+                }
+
+                @Override
+                public void hideTitle() {
 
                 }
 
@@ -901,8 +443,13 @@ public class SbPlayer {
                 }
 
                 @Override
-                public void giveExp(int i) {
+                public void giveExp(int i, boolean b) {
 
+                }
+
+                @Override
+                public int applyMending(int i) {
+                    return 0;
                 }
 
                 @Override
@@ -968,46 +515,6 @@ public class SbPlayer {
                 @Override
                 public void setFoodLevel(int i) {
 
-                }
-
-                @Override
-                public boolean isOnline() {
-                    return false;
-                }
-
-                @Override
-                public boolean isBanned() {
-                    return false;
-                }
-
-                @Override
-                public boolean isWhitelisted() {
-                    return false;
-                }
-
-                @Override
-                public void setWhitelisted(boolean b) {
-
-                }
-
-                @Override
-                public Player getPlayer() {
-                    return null;
-                }
-
-                @Override
-                public long getFirstPlayed() {
-                    return 0;
-                }
-
-                @Override
-                public long getLastPlayed() {
-                    return 0;
-                }
-
-                @Override
-                public boolean hasPlayedBefore() {
-                    return false;
                 }
 
                 @Override
@@ -1227,7 +734,592 @@ public class SbPlayer {
 
                 @Override
                 public String getLocale() {
+                    return "";
+                }
+
+                @Override
+                public boolean getAffectsSpawning() {
+                    return false;
+                }
+
+                @Override
+                public void setAffectsSpawning(boolean b) {
+
+                }
+
+                @Override
+                public int getViewDistance() {
+                    return 0;
+                }
+
+                @Override
+                public void setViewDistance(int i) {
+
+                }
+
+                @Override
+                public void setResourcePack(String s, String s1) {
+
+                }
+
+                @Override
+                public PlayerResourcePackStatusEvent.Status getResourcePackStatus() {
                     return null;
+                }
+
+                @Override
+                public String getResourcePackHash() {
+                    return "";
+                }
+
+                @Override
+                public boolean hasResourcePack() {
+                    return false;
+                }
+
+                @Override
+                public PlayerProfile getPlayerProfile() {
+                    return null;
+                }
+
+                @Override
+                public void setPlayerProfile(PlayerProfile playerProfile) {
+
+                }
+
+                @Override
+                public Spigot spigot() {
+                    return null;
+                }
+
+                @Override
+                public int getProtocolVersion() {
+                    return 0;
+                }
+
+                @Override
+                public @Nullable InetSocketAddress getVirtualHost() {
+                    return null;
+                }
+
+                @Override
+                public boolean isOnline() {
+                    return false;
+                }
+
+                @Override
+                public boolean isBanned() {
+                    return false;
+                }
+
+                @Override
+                public boolean isWhitelisted() {
+                    return false;
+                }
+
+                @Override
+                public void setWhitelisted(boolean b) {
+
+                }
+
+                @Override
+                public Player getPlayer() {
+                    return null;
+                }
+
+                @Override
+                public long getFirstPlayed() {
+                    return 0;
+                }
+
+                @Override
+                public long getLastPlayed() {
+                    return 0;
+                }
+
+                @Override
+                public boolean hasPlayedBefore() {
+                    return false;
+                }
+
+                @Override
+                public Map<String, Object> serialize() {
+                    return Map.of();
+                }
+
+                @Override
+                public boolean isConversing() {
+                    return false;
+                }
+
+                @Override
+                public void acceptConversationInput(String s) {
+
+                }
+
+                @Override
+                public boolean beginConversation(Conversation conversation) {
+                    return false;
+                }
+
+                @Override
+                public void abandonConversation(Conversation conversation) {
+
+                }
+
+                @Override
+                public void abandonConversation(Conversation conversation, ConversationAbandonedEvent conversationAbandonedEvent) {
+
+                }
+
+                @Override
+                public String getName() {
+                    return "";
+                }
+
+                @Override
+                public PlayerInventory getInventory() {
+                    return null;
+                }
+
+                @Override
+                public Inventory getEnderChest() {
+                    return null;
+                }
+
+                @Override
+                public MainHand getMainHand() {
+                    return null;
+                }
+
+                @Override
+                public boolean setWindowProperty(InventoryView.Property property, int i) {
+                    return false;
+                }
+
+                @Override
+                public InventoryView getOpenInventory() {
+                    return null;
+                }
+
+                @Override
+                public InventoryView openInventory(Inventory inventory) {
+                    return null;
+                }
+
+                @Override
+                public InventoryView openWorkbench(Location location, boolean b) {
+                    return null;
+                }
+
+                @Override
+                public InventoryView openEnchanting(Location location, boolean b) {
+                    return null;
+                }
+
+                @Override
+                public void openInventory(InventoryView inventoryView) {
+
+                }
+
+                @Override
+                public InventoryView openMerchant(Villager villager, boolean b) {
+                    return null;
+                }
+
+                @Override
+                public InventoryView openMerchant(Merchant merchant, boolean b) {
+                    return null;
+                }
+
+                @Override
+                public void closeInventory() {
+
+                }
+
+                @Override
+                public void closeInventory(InventoryCloseEvent.Reason reason) {
+
+                }
+
+                @Override
+                public ItemStack getItemInHand() {
+                    return null;
+                }
+
+                @Override
+                public void setItemInHand(ItemStack itemStack) {
+
+                }
+
+                @Override
+                public ItemStack getItemOnCursor() {
+                    return null;
+                }
+
+                @Override
+                public void setItemOnCursor(ItemStack itemStack) {
+
+                }
+
+                @Override
+                public boolean hasCooldown(Material material) {
+                    return false;
+                }
+
+                @Override
+                public int getCooldown(Material material) {
+                    return 0;
+                }
+
+                @Override
+                public void setCooldown(Material material, int i) {
+
+                }
+
+                @Override
+                public boolean isSleeping() {
+                    return false;
+                }
+
+                @Override
+                public int getSleepTicks() {
+                    return 0;
+                }
+
+                @Override
+                public GameMode getGameMode() {
+                    return null;
+                }
+
+                @Override
+                public void setGameMode(GameMode gameMode) {
+
+                }
+
+                @Override
+                public boolean isBlocking() {
+                    return false;
+                }
+
+                @Override
+                public boolean isHandRaised() {
+                    return false;
+                }
+
+                @Override
+                public int getExpToLevel() {
+                    return 0;
+                }
+
+                @Override
+                public Entity releaseLeftShoulderEntity() {
+                    return null;
+                }
+
+                @Override
+                public Entity releaseRightShoulderEntity() {
+                    return null;
+                }
+
+                @Override
+                public Entity getShoulderEntityLeft() {
+                    return null;
+                }
+
+                @Override
+                public void setShoulderEntityLeft(Entity entity) {
+
+                }
+
+                @Override
+                public Entity getShoulderEntityRight() {
+                    return null;
+                }
+
+                @Override
+                public void setShoulderEntityRight(Entity entity) {
+
+                }
+
+                @Override
+                public void openSign(Sign sign) {
+
+                }
+
+                @Override
+                public double getEyeHeight() {
+                    return 0;
+                }
+
+                @Override
+                public double getEyeHeight(boolean b) {
+                    return 0;
+                }
+
+                @Override
+                public Location getEyeLocation() {
+                    return null;
+                }
+
+                @Override
+                public List<Block> getLineOfSight(Set<Material> set, int i) {
+                    return List.of();
+                }
+
+                @Override
+                public Block getTargetBlock(Set<Material> set, int i) {
+                    return null;
+                }
+
+                @Override
+                public List<Block> getLastTwoTargetBlocks(Set<Material> set, int i) {
+                    return List.of();
+                }
+
+                @Override
+                public int getRemainingAir() {
+                    return 0;
+                }
+
+                @Override
+                public void setRemainingAir(int i) {
+
+                }
+
+                @Override
+                public int getMaximumAir() {
+                    return 0;
+                }
+
+                @Override
+                public void setMaximumAir(int i) {
+
+                }
+
+                @Override
+                public int getMaximumNoDamageTicks() {
+                    return 0;
+                }
+
+                @Override
+                public void setMaximumNoDamageTicks(int i) {
+
+                }
+
+                @Override
+                public double getLastDamage() {
+                    return 0;
+                }
+
+                @Override
+                public void setLastDamage(double v) {
+
+                }
+
+                @Override
+                public int getNoDamageTicks() {
+                    return 0;
+                }
+
+                @Override
+                public void setNoDamageTicks(int i) {
+
+                }
+
+                @Override
+                public Player getKiller() {
+                    return null;
+                }
+
+                @Override
+                public void setKiller(@Nullable Player player) {
+
+                }
+
+                @Override
+                public boolean addPotionEffect(PotionEffect potionEffect) {
+                    return false;
+                }
+
+                @Override
+                public boolean addPotionEffect(PotionEffect potionEffect, boolean b) {
+                    return false;
+                }
+
+                @Override
+                public boolean addPotionEffects(Collection<PotionEffect> collection) {
+                    return false;
+                }
+
+                @Override
+                public boolean hasPotionEffect(PotionEffectType potionEffectType) {
+                    return false;
+                }
+
+                @Override
+                public PotionEffect getPotionEffect(PotionEffectType potionEffectType) {
+                    return null;
+                }
+
+                @Override
+                public void removePotionEffect(PotionEffectType potionEffectType) {
+
+                }
+
+                @Override
+                public Collection<PotionEffect> getActivePotionEffects() {
+                    return List.of();
+                }
+
+                @Override
+                public boolean hasLineOfSight(Entity entity) {
+                    return false;
+                }
+
+                @Override
+                public boolean getRemoveWhenFarAway() {
+                    return false;
+                }
+
+                @Override
+                public void setRemoveWhenFarAway(boolean b) {
+
+                }
+
+                @Override
+                public EntityEquipment getEquipment() {
+                    return null;
+                }
+
+                @Override
+                public void setCanPickupItems(boolean b) {
+
+                }
+
+                @Override
+                public boolean getCanPickupItems() {
+                    return false;
+                }
+
+                @Override
+                public boolean isLeashed() {
+                    return false;
+                }
+
+                @Override
+                public Entity getLeashHolder() throws IllegalStateException {
+                    return null;
+                }
+
+                @Override
+                public boolean setLeashHolder(Entity entity) {
+                    return false;
+                }
+
+                @Override
+                public boolean isGliding() {
+                    return false;
+                }
+
+                @Override
+                public void setGliding(boolean b) {
+
+                }
+
+                @Override
+                public void setAI(boolean b) {
+
+                }
+
+                @Override
+                public boolean hasAI() {
+                    return false;
+                }
+
+                @Override
+                public void setCollidable(boolean b) {
+
+                }
+
+                @Override
+                public boolean isCollidable() {
+                    return false;
+                }
+
+                @Override
+                public int getArrowsStuck() {
+                    return 0;
+                }
+
+                @Override
+                public void setArrowsStuck(int i) {
+
+                }
+
+                @Override
+                public int getShieldBlockingDelay() {
+                    return 0;
+                }
+
+                @Override
+                public void setShieldBlockingDelay(int i) {
+
+                }
+
+                @Override
+                public ItemStack getActiveItem() {
+                    return null;
+                }
+
+                @Override
+                public int getItemUseRemainingTime() {
+                    return 0;
+                }
+
+                @Override
+                public int getHandRaisedTime() {
+                    return 0;
+                }
+
+                @Override
+                public AttributeInstance getAttribute(Attribute attribute) {
+                    return null;
+                }
+
+                @Override
+                public void damage(double v) {
+
+                }
+
+                @Override
+                public void damage(double v, Entity entity) {
+
+                }
+
+                @Override
+                public double getHealth() {
+                    return 0;
+                }
+
+                @Override
+                public void setHealth(double v) {
+
+                }
+
+                @Override
+                public double getMaxHealth() {
+                    return 0;
+                }
+
+                @Override
+                public void setMaxHealth(double v) {
+
+                }
+
+                @Override
+                public void resetMaxHealth() {
+
                 }
 
                 @Override
@@ -1292,7 +1384,7 @@ public class SbPlayer {
 
                 @Override
                 public List<Entity> getNearbyEntities(double v, double v1, double v2) {
-                    return null;
+                    return List.of();
                 }
 
                 @Override
@@ -1331,16 +1423,6 @@ public class SbPlayer {
                 }
 
                 @Override
-                public void sendMessage(String s) {
-
-                }
-
-                @Override
-                public void sendMessage(String[] strings) {
-
-                }
-
-                @Override
                 public Server getServer() {
                     return null;
                 }
@@ -1357,7 +1439,7 @@ public class SbPlayer {
 
                 @Override
                 public List<Entity> getPassengers() {
-                    return null;
+                    return List.of();
                 }
 
                 @Override
@@ -1402,7 +1484,7 @@ public class SbPlayer {
 
                 @Override
                 public UUID getUniqueId() {
-                    return UUID.fromString("NoTime-SB-Player");
+                    return null;
                 }
 
                 @Override
@@ -1502,7 +1584,7 @@ public class SbPlayer {
 
                 @Override
                 public Set<String> getScoreboardTags() {
-                    return null;
+                    return Set.of();
                 }
 
                 @Override
@@ -1521,7 +1603,142 @@ public class SbPlayer {
                 }
 
                 @Override
-                public Spigot spigot() {
+                public Location getOrigin() {
+                    return null;
+                }
+
+                @Override
+                public boolean fromMobSpawner() {
+                    return false;
+                }
+
+                @Override
+                public Chunk getChunk() {
+                    return null;
+                }
+
+                @Override
+                public String getCustomName() {
+                    return "";
+                }
+
+                @Override
+                public void setCustomName(String s) {
+
+                }
+
+                @Override
+                public void sendMessage(String s) {
+
+                }
+
+                @Override
+                public void sendMessage(String[] strings) {
+
+                }
+
+                @Override
+                public void setMetadata(String s, MetadataValue metadataValue) {
+
+                }
+
+                @Override
+                public List<MetadataValue> getMetadata(String s) {
+                    return List.of();
+                }
+
+                @Override
+                public boolean hasMetadata(String s) {
+                    return false;
+                }
+
+                @Override
+                public void removeMetadata(String s, Plugin plugin) {
+
+                }
+
+                @Override
+                public boolean isPermissionSet(String s) {
+                    return false;
+                }
+
+                @Override
+                public boolean isPermissionSet(Permission permission) {
+                    return false;
+                }
+
+                @Override
+                public boolean hasPermission(String s) {
+                    return false;
+                }
+
+                @Override
+                public boolean hasPermission(Permission permission) {
+                    return false;
+                }
+
+                @Override
+                public PermissionAttachment addAttachment(Plugin plugin, String s, boolean b) {
+                    return null;
+                }
+
+                @Override
+                public PermissionAttachment addAttachment(Plugin plugin) {
+                    return null;
+                }
+
+                @Override
+                public PermissionAttachment addAttachment(Plugin plugin, String s, boolean b, int i) {
+                    return null;
+                }
+
+                @Override
+                public PermissionAttachment addAttachment(Plugin plugin, int i) {
+                    return null;
+                }
+
+                @Override
+                public void removeAttachment(PermissionAttachment permissionAttachment) {
+
+                }
+
+                @Override
+                public void recalculatePermissions() {
+
+                }
+
+                @Override
+                public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+                    return Set.of();
+                }
+
+                @Override
+                public boolean isOp() {
+                    return false;
+                }
+
+                @Override
+                public void setOp(boolean b) {
+
+                }
+
+                @Override
+                public void sendPluginMessage(Plugin plugin, String s, byte[] bytes) {
+
+                }
+
+                @Override
+                public Set<String> getListeningPluginChannels() {
+                    return Set.of();
+                }
+
+                @Override
+                public <T extends Projectile> T launchProjectile(Class<? extends T> aClass) {
+                    return null;
+                }
+
+                @Override
+                public <T extends Projectile> T launchProjectile(Class<? extends T> aClass, Vector vector) {
                     return null;
                 }
             };

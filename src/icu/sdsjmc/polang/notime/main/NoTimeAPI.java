@@ -90,71 +90,66 @@ public class NoTimeAPI {
         for (String subcommand : subcommands) {
             if (subcommand.startsWith("week=") || subcommand.startsWith("周=")) {
                 String day = subcommand.substring(subcommand.indexOf("=") + 1);
-                if (DAY == getWeekInt(day)) {
-                    continue;
-                } else {
-                    break;
-                }
+                if (DAY == getWeekInt(day)) continue;
+                else break;
             }
             if (subcommand.startsWith("月=")) {
                 String day = subcommand.substring(subcommand.indexOf("=") + 1);
-                if (number == getMonthly(day)) {
-                    continue;
-                } else {
-                    break;
-                }
+                if (number == getMonthly(day)) continue;
+                else break;
             }
             if (subcommand.equalsIgnoreCase("@s")) {
                 notime.getServer().shutdown();
-            } else {
-                //没空格就直接输出后台命令
-                if (!subcommand.contains(" ")) {
-
-                    console(subcommand);
-                    continue;
+                return;
+            }
+            //没空格就直接输出后台命令
+            if (!subcommand.contains(" ")) {
+                console(subcommand);
+                continue;
+            }
+            String papiCommand = subcommand;
+            String condition = subcommand.substring(0, subcommand.indexOf(' '));
+            int q = 0;
+            if (NoTime.papi) // 如果有papi插件就把文本改为解析papi的
+            {
+                if (condition.equals("@papi")) {
+                    q = 6;
+                    String cq = papiCommand.substring(6);
+                    condition = cq.substring(0, cq.indexOf(' '));
+                    papiCommand = cq;
+                } else {
+                    papiCommand = PlaceholderAPI.setPlaceholders(SbPlayer.player, subcommand);
                 }
-                String papiCommand = subcommand;
-                String condition = subcommand.substring(0, subcommand.indexOf(' '));
-                int q = 0;
-                if (NoTime.papi) // 如果有papi插件就把文本改为解析papi的
-                {
-                    if (condition.equals("@papi")) {
-                        q = 6;
-                        String cq = papiCommand.substring(6);
-                        condition = cq.substring(0, cq.indexOf(' '));
-                        papiCommand = cq;
-                    } else {
-                        papiCommand = PlaceholderAPI.setPlaceholders(SbPlayer.player, subcommand);
-                    }
+            }
+            if (!condition.startsWith("@"))
+            {
+                console(papiCommand);
+                return;
+            }
+            switch (condition) {
+                case "@m": {
+                    String msg = papiCommand.substring(3 + q);
+                    notime.getServer().broadcastMessage(msg.replace("&", "§").replace("§§", "&"));
+                    break;
                 }
-                switch (condition) {
-                    case "@m": {
-                        String msg = papiCommand.substring(3 + q);
-                        notime.getServer().broadcastMessage(msg.replace("&", "§").replace("§§", "&"));
-                        break;
+                case "@all_command": {
+                    String msg = papiCommand.substring(13 + q);
+                    for (Player player : notime.getServer().getOnlinePlayers()) {
+                        console(msg, player);
                     }
-                    case "@all_command": {
-                        String msg = papiCommand.substring(13 + q);
-                        for (Player player : notime.getServer().getOnlinePlayers()) {
-                            console(msg, player);
-                        }
-                        break;
+                    break;
+                }
+                case "@all": {
+                    String com = papiCommand.substring(5 + q);
+                    for (Player player : notime.getServer().getOnlinePlayers()) {
+                        console(com.replace("@name@", player.getName()));
                     }
-                    case "@all": {
-                        String com = papiCommand.substring(5 + q);
-                        for (Player player : notime.getServer().getOnlinePlayers()) {
-                            console(com.replace("@name@", player.getName()));
-                        }
-                        break;
-                    }
-                    case "@k": {
-                        String com = papiCommand.substring(3 + q);
-                        kickPlayers(com);
-                        break;
-                    }
-                    default: {
-                        console(papiCommand);
-                    }
+                    break;
+                }
+                case "@k": {
+                    String com = papiCommand.substring(3 + q);
+                    kickPlayers(com);
+                    break;
                 }
             }
         }
@@ -198,23 +193,39 @@ public class NoTimeAPI {
 
     public static void kickPlayers(String string) //踢出在线非白名单玩家
     {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!config.getList("notime.whitelist").contains(p.getName())) {
-                p.kickPlayer(string);
+        //如果黑名单为空就执行原本逻辑
+        if (config.getList("notime.blacklist").isEmpty() || config.getList("notime.blacklist").get(0) == "") {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                //如果不在白名单中就踢出
+                if (!config.getList("notime.whitelist").contains(p.getName())) {
+                    p.kickPlayer(string);
+                }
+            }
+        } else {
+            //如果黑名单不为空就只踢出在黑名单中的玩家
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (config.getList("notime.blacklist").contains(p.getName())) {
+                    p.kickPlayer(string);
+                }
             }
         }
     }
 
     public static void console(String command) // 后台执行命令
     {
-        notime.getServer().getScheduler().runTask(notime, () ->
-                notime.getServer().dispatchCommand(notime.getServer().getConsoleSender(), command.replace("&", "§").replace("§§", "&")));
+        NoTime.getFoliaLib().getScheduler().runNextTick((wrappedTask ->
+                notime.getServer().dispatchCommand(
+                        notime.getServer().getConsoleSender(),
+                        command.replace("&", "§").replace("§§", "&"))));
     }
 
     public static void console(String command, Player player) // 后台执行命令
     {
-        notime.getServer().getScheduler().runTask(notime, () ->
-                notime.getServer().dispatchCommand(player, command.replace("&", "§").replace("§§", "&")));
+        NoTime.getFoliaLib().getScheduler().runNextTick((wrappedTask ->
+                notime.getServer().dispatchCommand(player, command
+                        .replace("&", "§")
+                        .replace("§§", "&"))
+        ));
     }
 
     /**
@@ -223,7 +234,7 @@ public class NoTimeAPI {
      * @param taskName 任务名称
      * @return 距离下次执行的秒数
      */
-    public static long getTimeUntilNextExecution(String taskName) {
+    public static long getTimeNextExecution(String taskName) {
         String path = "run." + taskName;
 
         // 处理单时间任务
@@ -264,9 +275,29 @@ public class NoTimeAPI {
 
         // 处理循环任务
         if (config.isString(path + ".fortime")) {
-            // 对于循环任务，返回下一次执行的时间间隔
+            // 对于循环任务，计算剩余时间直到下一次执行
             String fortime = config.getString(path + ".fortime");
-            return TimeUnit.NANOSECONDS.toSeconds(parseTime(fortime));
+            long interval = parseTime(fortime);
+            if (interval == 0) return 0;
+
+            // 获取任务上次执行的时间戳
+            Long lastRunTime = NoTime.lastRunTimeForTasks.get(taskName);
+            if (lastRunTime == null) {
+                // 如果没有记录上次执行时间，返回总间隔时间
+                return TimeUnit.NANOSECONDS.toSeconds(interval);
+            }
+
+            // 计算从上次执行到现在经过的时间
+            long elapsed = System.nanoTime() - lastRunTime;
+            // 计算剩余时间
+            long remaining = interval - elapsed;
+            // 如果剩余时间小于等于0，说明即将执行或刚执行完，返回0
+            if (remaining <= 0) {
+                return 0;
+            }
+
+            // 将纳秒转换为秒
+            return TimeUnit.NANOSECONDS.toSeconds(remaining);
         }
 
         return 0;

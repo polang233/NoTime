@@ -1,8 +1,9 @@
 package icu.sdsjmc.polang.notime;
 
+import com.tcoded.folialib.FoliaLib;
 import icu.sdsjmc.polang.notime.hook.Metrics;
 import icu.sdsjmc.polang.notime.hook.PlaceholderAPI;
-import icu.sdsjmc.polang.notime.main.Listener;
+import icu.sdsjmc.polang.notime.main.Events;
 import icu.sdsjmc.polang.notime.main.NoTimeAPI;
 import icu.sdsjmc.polang.notime.main.command.main.NotimeCommand;
 import icu.sdsjmc.polang.notime.main.command.sub.TestCommand;
@@ -28,6 +29,9 @@ public class NoTime extends JavaPlugin {
     public static NoTime instance;
     public static boolean noTimeEnable;
     public static boolean papi;
+    private static FoliaLib foliaLib;
+    public static boolean isFolia = false;
+
     public static FileConfiguration config;
     public static String kickMessage = " ";
     public final static String notimeTitle = "§7[§2§lNo§a§lTime§7] ";
@@ -36,8 +40,14 @@ public class NoTime extends JavaPlugin {
     public static ScheduledThreadPoolExecutor executorList;
     public static ScheduledThreadPoolExecutor executorFor;
 
+
     public void onLoad() {
         instance = this;
+        try {
+            isFolia = Class.forName("io.papermc.paper.threadedregions.RegionizedServer") != null;
+        } catch (Exception ignored) {
+        }
+
         saveDefaultConfig();
         reloadConfig();
         config = getConfig();
@@ -60,12 +70,13 @@ public class NoTime extends JavaPlugin {
     @Override
     public void onEnable() {
         onLoad();
+        foliaLib = new FoliaLib(this);
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             papi = true;
             new PlaceholderAPI().register();
             getLogger().info(notimeTitle + "§3检测到 PlaceholderAPI 已挂钩");
         }
-        getServer().getPluginManager().registerEvents(new Listener(), this);
+        getServer().getPluginManager().registerEvents(new Events(), this);
 
         runKickTask();
         if (kickTask != null) getLogger().info(notimeTitle + "§e已成功加载了防沉迷");
@@ -82,14 +93,27 @@ public class NoTime extends JavaPlugin {
         forTime();
         if (executorFor != null)
             getLogger().info(notimeTitle + "§e你已成功加载§c " + executorFor.getTaskCount() + " §e个循环任务");
-
-        getServer().getPluginCommand("notime").setExecutor(new NotimeCommand());
-        getServer().getPluginCommand("notime").setTabCompleter(new NotimeCommand());
-
-        // 延迟任务执行一秒钟（20 tick
-        getServer().getScheduler().runTaskLater(this, this::startCommands, 20L);
+        NotimeCommand notimeCommand = new NotimeCommand();
+        getServer().getPluginCommand("notime").setExecutor(notimeCommand);
+        getServer().getPluginCommand("notime").setTabCompleter(notimeCommand);
+        // 延迟任务执行一秒钟（20 tick）
+        // 使用普通线程代替Bukkit scheduler以支持Folia
+        Thread startCommandThread = new Thread(() -> {
+            try {
+                Thread.sleep(1000); // 等待1秒
+                startCommands();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        startCommandThread.start();
+//        // 延迟任务执行一秒钟（20 tick
+//        getServer().getScheduler().runTaskLater(this, this::startCommands, 20L);
 
         new Metrics(this, 19955);
+        if (isFolia) {
+            getLogger().info(notimeTitle + "§a您使用的是 Folia，正常运行中。");
+        }
         getLogger().info(notimeTitle + "§6问题反馈、插件交流请加群：§d620224543");
         getLogger().info(" ");
         getLogger().info(notimeTitle + "§f插件成功加载！");
@@ -128,30 +152,33 @@ public class NoTime extends JavaPlugin {
         if (kickTask != null) {
             kickTask.cancel();
         }
-        // 调用服务器调度器，异步执行任务
-        kickTask = getServer().getScheduler().runTaskAsynchronously(this, () ->
-        {
-            // 计算任务执行时间，如果当前时间晚于配置的起始时间，则计算为明天的相同时间
-            int time = LocalTime.parse(config.getString("notime.start")).toSecondOfDay() - LocalTime.now().toSecondOfDay();
-            if (LocalTime.now().toSecondOfDay() >= LocalTime.parse(config.getString("notime.start")).toSecondOfDay()) {
-                time += 24 * 60 * 60;
+
+        // Folia支持，不能用Bukkit scheduler
+        Thread kickThread = new Thread(() -> {
+            while (noTimeEnable) {
+                // 计算任务执行时间，如果当前时间晚于配置的起始时间，则计算为明天的相同时间
+                int time = LocalTime.parse(config.getString("notime.start")).toSecondOfDay() - LocalTime.now().toSecondOfDay();
+                if (LocalTime.now().toSecondOfDay() >= LocalTime.parse(config.getString("notime.start")).toSecondOfDay()) {
+                    time += 24 * 60 * 60;
+                }
+                // 暂停当前线程，直到到达任务执行时间
+                try {
+                    Thread.sleep(time * 1000L);
+                } catch (InterruptedException e) {
+                    // 如果线程被中断，退出线程
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+
+                // 如果配置启用，踢出过期玩家，需要确保在主线程执行
+                if (config.getBoolean("notime.kick-old", true)) {
+
+                    foliaLib.getScheduler().runNextTick((wrappedTask) -> kickPlayers(kickMessage));
+                }
             }
-            // 暂停当前线程，直到到达任务执行时间
-            try {
-                Thread.sleep(time * 1000L);
-            } catch (InterruptedException e) {
-                // 如果线程被中断，抛出运行时异常
-                throw new RuntimeException(e);
-            }
-            // 任务执行完毕后，重置任务实例
-            kickTask = null;
-            // 如果配置启用，踢出过期玩家
-            if (config.getBoolean("notime.kick-old", true)) {
-                getServer().getScheduler().runTask(this, () -> kickPlayers(kickMessage));
-            }
-            // 递归调用自身，重新安排任务，实现周期性执行
-            runKickTask();
         });
+        kickThread.setDaemon(true);
+        kickThread.start();
     }
 
 
@@ -243,6 +270,8 @@ public class NoTime extends JavaPlugin {
      * 定时循环执行的计时器
      */
 
+    public static Map<String, Long> lastRunTimeForTasks = new HashMap<>();
+
     public void forTime() {
         Map<String, ScheduleData> schedules2 = new HashMap<>();
         for (String key : config.getConfigurationSection("run").getKeys(false)) {
@@ -262,9 +291,13 @@ public class NoTime extends JavaPlugin {
                 long delay = parseTime(data.timeString);
                 if (delay != 0) // 如果延迟解析不成不创建任务
                 {
+                    // 初始化任务的上次执行时间为当前时间
+                    lastRunTimeForTasks.put(key, System.nanoTime());
                     // 创建任务
                     executorFor.scheduleAtFixedRate(() ->
                     {
+                        // 更新任务的上次执行时间
+                        lastRunTimeForTasks.put(key, System.nanoTime());
                         for (String command : data.commands) {
                             operate(command);
                         }
@@ -295,5 +328,9 @@ public class NoTime extends JavaPlugin {
                 map.put(key, scheduleData);
             }
         }
+    }
+
+    public static FoliaLib getFoliaLib() {
+        return foliaLib;
     }
 }

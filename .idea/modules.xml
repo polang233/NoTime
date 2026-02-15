@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/NoTime.iml" filepath="$PROJECT_DIR$/NoTime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NoTime.iml" filepath="$PROJECT_DIR$/.idea/modules/NoTime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NoTime.main.iml" filepath="$PROJECT_DIR$/.idea/modules/NoTime.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/NoTime.test.iml" filepath="$PROJECT_DIR$/.idea/modules/NoTime.test.iml" />
     </modules>
   </component>
 </project>

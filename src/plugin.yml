@@ -1,6 +1,6 @@
 name: NoTime
 main: icu.sdsjmc.polang.notime.NoTime
-version: 1.4.0
+version: '${version}'
 author: polang
 api-version: 1.13
 softdepend: [ PlaceholderAPI ]

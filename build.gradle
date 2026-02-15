@@ -1,0 +1,103 @@
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'icu.sdsjmc.polang'
+version = '1.4.2'
+
+
+def targetJavaVersion = 11
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(targetJavaVersion)
+    }
+}
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+// 修正源码目录配置
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/groups/public/"
+    }
+    maven {
+        url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+    }
+    maven {
+        name = "tcoded-releases"
+        url = "https://repo.tcoded.com/releases"
+    }
+}
+
+dependencies {
+    // 其他依赖不变
+    compileOnly 'me.clip:placeholderapi:2.11.7'
+    compileOnly "com.destroystokyo.paper:paper-api:1.12.2-R0.1-SNAPSHOT"
+//    compileOnly 'org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT'
+    implementation "com.tcoded:FoliaLib:0.5.1"
+
+}
+
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+
+//jar {
+//    archiveBaseName = 'NoTime'
+//    manifest {
+//        attributes(
+//                'Main-Class': 'icu.sdsjmc.polang.notime.NoTime',
+//                'Version': project.version,
+//                'API-Version': '1.13',
+//                'Folia-Compatible': 'true' // 标记适配 Folia
+//        )
+//    }
+//}
+
+shadowJar {
+    // !! MAKE SURE TO CHANGE THIS TO YOUR PLUGIN'S GROUP & PLUGIN NAME !!
+    relocate("com.tcoded.folialib", "icu.sdsjmc.polang.lib.folialib")
+    archiveClassifier = 'all'
+//    configurations = [project.configurations.compileClasspath]
+
+//    // 排除所有服务端 API（Bukkit/Spigot/Folia），避免冲突
+//    exclude 'org/spigotmc/**'
+//    exclude 'org/bukkit/**'
+//    exclude 'io/papermc/**' // 新增排除 Folia 包
+//    exclude 'net/minecraft/**'
+
+    mergeServiceFiles()
+}

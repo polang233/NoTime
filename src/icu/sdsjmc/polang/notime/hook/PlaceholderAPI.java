@@ -49,16 +49,16 @@ public class PlaceholderAPI extends PlaceholderExpansion {
         if (!NoTime.config.contains(path)) {
             return "0";
         }
-        long secondsUntilExecution = NoTimeAPI.getTimeUntilNextExecution(taskName);
+        long nextTime = NoTimeAPI.getTimeNextExecution(taskName);
         switch (timeUnit.toLowerCase()) {
             case "s":
-                return String.valueOf(secondsUntilExecution);
+                return String.valueOf(nextTime);
             case "m":
-                return String.valueOf(TimeUnit.SECONDS.toMinutes(secondsUntilExecution));
+                return String.valueOf(TimeUnit.SECONDS.toMinutes(nextTime));
             case "h":
-                return String.valueOf(TimeUnit.SECONDS.toHours(secondsUntilExecution));
+                return String.valueOf(TimeUnit.SECONDS.toHours(nextTime));
             case "d":
-                return String.valueOf(TimeUnit.SECONDS.toDays(secondsUntilExecution));
+                return String.valueOf(TimeUnit.SECONDS.toDays(nextTime));
             default:
                 return "0";
         }
