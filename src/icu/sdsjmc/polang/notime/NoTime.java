@@ -241,7 +241,6 @@ public class NoTime extends JavaPlugin {
 
         // 创建 ScheduledExecutorService 对象
         executor = new ScheduledThreadPoolExecutor(1);
-        ;
 
         // 针对每个指定的时间创建定时任务
         schedules.forEach((key, data) ->
@@ -282,7 +281,6 @@ public class NoTime extends JavaPlugin {
         }
 
         executorFor = new ScheduledThreadPoolExecutor(1);
-        ;
 
         // 针对每个指定的时间创建定时任务
         schedules2.forEach((key, data) ->
