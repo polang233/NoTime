@@ -9,8 +9,6 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 
-import static icu.sdsjmc.polang.notime.NoTime.kickTask;
-
 public class ReloadCommand implements SubCommand {
 
     @Override
@@ -23,10 +21,11 @@ public class ReloadCommand implements SubCommand {
         //覆盖进去
 
         NoTime plugin = NoTime.instance;
-        plugin.onLoad();
+        // 调用 loadConfig() 而非 onLoad()，避免触发 saveDefaultConfig 等不必要的操作
+        plugin.loadConfig();
 
         plugin.runKickTask();
-        if (NoTime.kickTask != null && NoTime.noTimeEnable) {
+        if (NoTime.noTimeEnable) {
             sender.sendMessage(NoTime.notimeTitle + "§e已成功加载了防沉迷");
         } else {
             sender.sendMessage(NoTime.notimeTitle + "§8§n未启用防沉迷功能");

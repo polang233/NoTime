@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -65,19 +66,28 @@ public class NoTimeAPI {
         }
     }
 
-//    public static String parseTime(String timeString, String key) {
-//        switch (timeString) {
-//            case "s":
-//                return String.valueOf(NoTime.instance.getTimeUntilNextExecution(key));
-//            case "m":
-//                return String.valueOf(NoTime.instance.getTimeUntilNextExecution(key).toMinutes());
-//            case "h":
-//                String.valueOf(NoTime.instance.getTimeUntilNextExecution(key).toHours());
-//            case "d":
-//                String.valueOf(NoTime.instance.getTimeUntilNextExecution(key).toDays());
-//        }
-//        return null;
-//    }
+    /**
+     * 判断玩家是否应该被拦截（踢出/禁止登录）。
+     * 根据黑名单/白名单配置进行判断。
+     *
+     * @param playerName 玩家名称
+     * @return true 表示应该被拦截
+     */
+    public static boolean shouldBlockPlayer(String playerName) {
+        List<?> blacklist = config.getList("notime.blacklist", Collections.emptyList());
+        boolean useBlacklist = blacklist != null && !blacklist.isEmpty()
+                && !String.valueOf(blacklist.get(0)).trim().isEmpty();
+
+        if (useBlacklist) {
+            // 黑名单模式：仅黑名单中的玩家被拦截
+            return blacklist.contains(playerName);
+        } else {
+            // 白名单模式：不在白名单中的玩家被拦截
+            return !config.getStringList("notime.whitelist").contains(playerName);
+        }
+    }
+
+
 
     /**
      * 执行操作的方法
@@ -121,10 +131,12 @@ public class NoTimeAPI {
                     papiCommand = PlaceholderAPI.setPlaceholders(SbPlayer.player, subcommand);
                 }
             }
+            // 修复：非 @ 前缀的普通命令用 break 而非 return，
+            // 避免跳过当前子命令后面的所有分号分隔的命令
             if (!condition.startsWith("@"))
             {
                 console(papiCommand);
-                return;
+                continue; // 只跳过当前子命令，不影响后续命令
             }
             switch (condition) {
                 case "@m": {
@@ -155,13 +167,21 @@ public class NoTimeAPI {
         }
     }
 
+    // 正则表达式预编译为静态常量，避免每次调用 parseTime() 时重复编译
+    private static final Pattern TIME_PATTERN = Pattern.compile("(\\d+)([smhd])");
+
     public static long parseTime(String timeString) {
-        // 使用正则表达式匹配数字加单位的模式，如 10m, 5s 等
-        Pattern pattern = Pattern.compile("(\\d+)([smhd])");
-        Matcher matcher = pattern.matcher(timeString);
+        if (timeString == null || timeString.trim().isEmpty()) {
+            throw new IllegalArgumentException(NoTime.notimeTitle + " §c无效的时间格式: §e" + timeString);
+        }
+        Matcher matcher = TIME_PATTERN.matcher(timeString);
         long totalDelay = 0;
+        int lastEnd = 0;
 
         while (matcher.find()) {
+            if (matcher.start() != lastEnd) {
+                throw new IllegalArgumentException(NoTime.notimeTitle + " §c无效的时间格式: §e" + timeString);
+            }
             long amount = Long.parseLong(matcher.group(1)); // 提取数字部分
             char unit = matcher.group(2).charAt(0); // 提取单位
 
@@ -182,31 +202,22 @@ public class NoTimeAPI {
                 default:
                     throw new IllegalArgumentException(NoTime.notimeTitle + " §c错误的时间单位: §e" + unit);
             }
+            lastEnd = matcher.end();
         }
 
         // 确保整个字符串被成功解析，否则抛出异常
-        if (!matcher.hitEnd()) {
+        if (lastEnd != timeString.length()) {
             throw new IllegalArgumentException(NoTime.notimeTitle + " §c无效的时间格式: §e" + timeString);
         }
         return totalDelay;
     }
 
+    // 使用共享的 shouldBlockPlayer 方法统一判断黑白名单，避免重复代码
     public static void kickPlayers(String string) //踢出在线非白名单玩家
     {
-        //如果黑名单为空就执行原本逻辑
-        if (config.getList("notime.blacklist").isEmpty() || config.getList("notime.blacklist").get(0) == "") {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                //如果不在白名单中就踢出
-                if (!config.getList("notime.whitelist").contains(p.getName())) {
-                    p.kickPlayer(string);
-                }
-            }
-        } else {
-            //如果黑名单不为空就只踢出在黑名单中的玩家
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (config.getList("notime.blacklist").contains(p.getName())) {
-                    p.kickPlayer(string);
-                }
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (shouldBlockPlayer(p.getName())) {
+                p.kickPlayer(string);
             }
         }
     }

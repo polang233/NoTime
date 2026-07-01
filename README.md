@@ -6,7 +6,7 @@
 
 一个轻量级的 Minecraft 服务器时间管理与防沉迷插件，支持 Folia。
 
-![Version](https://img.shields.io/badge/version-1.4.2-blue)
+![Version](https://img.shields.io/badge/version-1.4.3-blue)
 ![API](https://img.shields.io/badge/api-1.8—26.2-green)
 ![Folia](https://img.shields.io/badge/folia-supported-brightgreen)
 

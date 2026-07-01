@@ -23,14 +23,17 @@ public class TestCommand implements SubCommand {
             return false;
         }
 
-        if (NoTime.config.getStringList("run." + args[0] + ".command") != null) {
-            List<String> commands = NoTime.config.getStringList("run." + args[0] + ".command");
+        // 使用 config.contains() 判断任务是否存在，而不是冗余的 != null 检查
+        // （getStringList() 永远不返回 null，原代码检查无意义）
+        String taskPath = "run." + args[0] + ".command";
+        if (NoTime.config.contains(taskPath)) {
+            List<String> commands = NoTime.config.getStringList(taskPath);
             for (String command : commands) {
                 NoTimeAPI.operate(command);
             }
-            sender.sendMessage("§a运行" + args[0] + "定时任务成功");
+            sender.sendMessage("§a运行 §2" + args[0] + " §a定时任务成功");
         } else {
-            sender.sendMessage("§c找不到该定时任务.");
+            sender.sendMessage("§c找不到该 §2" + args[0] + " §c定时任务.");
         }
 
         return true;

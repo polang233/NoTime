@@ -10,6 +10,7 @@ import icu.sdsjmc.polang.notime.main.command.sub.TestCommand;
 import icu.sdsjmc.polang.notime.main.data.ScheduleData;
 import icu.sdsjmc.polang.notime.main.data.ScheduleDataTimes;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -39,22 +40,33 @@ public class NoTime extends JavaPlugin {
     public static ScheduledThreadPoolExecutor executor;
     public static ScheduledThreadPoolExecutor executorList;
     public static ScheduledThreadPoolExecutor executorFor;
+    private static Thread kickThread;
 
 
+    // onLoad 仅做基础初始化：设置实例、检测 Folia 环境、生成默认配置
+    // 不加载配置文件，避免被 onEnable 二次调用导致重复执行
     public void onLoad() {
         instance = this;
+        // 通过反射检测 Folia 的类来判断运行环境
         try {
             isFolia = Class.forName("io.papermc.paper.threadedregions.RegionizedServer") != null;
         } catch (Exception ignored) {
         }
+        saveDefaultConfig(); // 仅在插件首次加载时生成默认配置文件
+    }
 
-        saveDefaultConfig();
+    /**
+     * 加载/重载配置文件。
+     * 由 onEnable() 和 ReloadCommand 调用。
+     */
+    public void loadConfig() {
         reloadConfig();
         config = getConfig();
-        kickMessage = config.getString("notime.kick-message")
+        String rawKickMessage = config.getString("notime.kick-message", kickMessage);
+        kickMessage = rawKickMessage
                 .replace("&", "§").replace("§§", "&")
-                .replace("%start%", config.getString("notime.start"))
-                .replace("%end%", config.getString("notime.end"));
+                .replace("%start%", config.getString("notime.start", "00:00"))
+                .replace("%end%", config.getString("notime.end", "07:00"));
         noTimeEnable = config.getBoolean("notime.enable", true);
         getLogger().info("§b配置文件已重载.");
         if (config.getBoolean("notime.kick-old", true) && noTimeEnable) {
@@ -64,13 +76,17 @@ public class NoTime extends JavaPlugin {
         }
 
         TestCommand.list.clear();
-        TestCommand.list.addAll(NoTime.config.getConfigurationSection("run").getKeys(false));
+        ConfigurationSection runSection = config.getConfigurationSection("run");
+        if (runSection != null) {
+            TestCommand.list.addAll(runSection.getKeys(false));
+        }
     }
 
     @Override
+    // 不再调用 onLoad()，避免配置重复加载和防沉迷判断执行两次
     public void onEnable() {
-        onLoad();
         foliaLib = new FoliaLib(this);
+        loadConfig(); // 加载配置文件、解析踢人消息、初始化任务列表
         if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
             papi = true;
             new PlaceholderAPI().register();
@@ -79,7 +95,7 @@ public class NoTime extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new Events(), this);
 
         runKickTask();
-        if (kickTask != null) getLogger().info(notimeTitle + "§e已成功加载了防沉迷");
+        if (noTimeEnable) getLogger().info(notimeTitle + "§e已成功加载了防沉迷");
         else getLogger().info(notimeTitle + "§8§n未启用防沉迷功能");
 
         run();
@@ -96,19 +112,8 @@ public class NoTime extends JavaPlugin {
         NotimeCommand notimeCommand = new NotimeCommand();
         getServer().getPluginCommand("notime").setExecutor(notimeCommand);
         getServer().getPluginCommand("notime").setTabCompleter(notimeCommand);
-        // 延迟任务执行一秒钟（20 tick）
-        // 使用普通线程代替Bukkit scheduler以支持Folia
-        Thread startCommandThread = new Thread(() -> {
-            try {
-                Thread.sleep(1000); // 等待1秒
-                startCommands();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
-        startCommandThread.start();
-//        // 延迟任务执行一秒钟（20 tick
-//        getServer().getScheduler().runTaskLater(this, this::startCommands, 20L);
+        // 使用 Folia 兼容调度器延迟 1 秒后执行启动命令
+        foliaLib.getScheduler().runLater(this::startCommands, 20L);
 
         new Metrics(this, 19955);
         if (isFolia) {
@@ -123,6 +128,7 @@ public class NoTime extends JavaPlugin {
     public void onDisable() {
         getLogger().info(notimeTitle + "§7插件正在卸载...");
         // 关闭 ScheduledExecutorService
+        stopKickThread();
         if (executor != null) executor.shutdownNow();
         if (executorList != null) executorList.shutdownNow();
         if (executorFor != null) executorFor.shutdownNow();
@@ -146,6 +152,7 @@ public class NoTime extends JavaPlugin {
      */
     //定时踢出
     public void runKickTask() {
+        stopKickThread();
         // 检查是否启用了定时任务，如果没有启用，则直接返回不执行任何操作
         if (!noTimeEnable) return;
         // 如果当前存在任务实例，则尝试取消当前任务，避免重复执行
@@ -154,7 +161,7 @@ public class NoTime extends JavaPlugin {
         }
 
         // Folia支持，不能用Bukkit scheduler
-        Thread kickThread = new Thread(() -> {
+        kickThread = new Thread(() -> {
             while (noTimeEnable) {
                 // 计算任务执行时间，如果当前时间晚于配置的起始时间，则计算为明天的相同时间
                 int time = LocalTime.parse(config.getString("notime.start")).toSecondOfDay() - LocalTime.now().toSecondOfDay();
@@ -177,8 +184,16 @@ public class NoTime extends JavaPlugin {
                 }
             }
         });
+        kickThread.setName("NoTime-KickTask");
         kickThread.setDaemon(true);
         kickThread.start();
+    }
+
+    private void stopKickThread() {
+        if (kickThread != null) {
+            kickThread.interrupt();
+            kickThread = null;
+        }
     }
 
 
@@ -189,7 +204,9 @@ public class NoTime extends JavaPlugin {
         Map<String, ScheduleDataTimes> schedulesTimes = new HashMap<>();
 
         // 遍历配置文件中的每个定时任务
-        for (String key : config.getConfigurationSection("run").getKeys(false)) {
+        ConfigurationSection runSection = config.getConfigurationSection("run");
+        if (runSection == null) return;
+        for (String key : runSection.getKeys(false)) {
             String path = "run." + key;
             if (config.isList(path + ".time") && !config.isString(path + ".fortime")) {
                 List<String> times = config.getStringList(path + ".time");
@@ -232,7 +249,9 @@ public class NoTime extends JavaPlugin {
         Map<String, ScheduleData> schedules = new HashMap<>();
 
         // 遍历配置文件中的每个定时任务
-        for (String key : config.getConfigurationSection("run").getKeys(false)) {
+        ConfigurationSection runSection = config.getConfigurationSection("run");
+        if (runSection == null) return;
+        for (String key : runSection.getKeys(false)) {
             String path = "run." + key;
             if (!config.isString(path + ".fortime")) {
                 data(schedules, key, 1);
@@ -273,7 +292,9 @@ public class NoTime extends JavaPlugin {
 
     public void forTime() {
         Map<String, ScheduleData> schedules2 = new HashMap<>();
-        for (String key : config.getConfigurationSection("run").getKeys(false)) {
+        ConfigurationSection runSection = config.getConfigurationSection("run");
+        if (runSection == null) return;
+        for (String key : runSection.getKeys(false)) {
             String path = "run." + key;
             if (config.isString(path + ".fortime")) {
                 data(schedules2, key, 2);

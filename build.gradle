@@ -6,10 +6,10 @@ plugins {
 }
 
 group = 'icu.sdsjmc.polang'
-version = '1.4.2'
+version = '1.4.3'
 
 
-def targetJavaVersion = 11
+def targetJavaVersion = 8
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 
@@ -90,7 +90,7 @@ processResources {
 shadowJar {
     // !! MAKE SURE TO CHANGE THIS TO YOUR PLUGIN'S GROUP & PLUGIN NAME !!
     relocate("com.tcoded.folialib", "icu.sdsjmc.polang.lib.folialib")
-    archiveClassifier = 'all'
+    archiveClassifier = ''
 //    configurations = [project.configurations.compileClasspath]
 
 //    // 排除所有服务端 API（Bukkit/Spigot/Folia），避免冲突
