@@ -1,9 +1,13 @@
 # NoTime
 
+<p align="center">
+  <img src="img/logo.gif" alt="NoTime Logo" width="200">
+</p>
+
 一个轻量级的 Minecraft 服务器时间管理与防沉迷插件，支持 Folia。
 
 ![Version](https://img.shields.io/badge/version-1.4.2-blue)
-![API](https://img.shields.io/badge/api-1.8—26.1-green)
+![API](https://img.shields.io/badge/api-1.8—26.2-green)
 ![Folia](https://img.shields.io/badge/folia-supported-brightgreen)
 
 ## 功能特性
@@ -17,11 +21,15 @@
 - **反向模式**：可以设置为仅在指定时间内允许进入
 - **自定义提示**：可配置被踢出时的提示信息
 
-![防沉迷配置示例](https://s2.loli.net/2024/01/15/example1.png)
-
 ### 📅 定时任务执行
 
 在特定时间自动执行服务器命令，支持多种时间格式和触发方式。
+
+#### 每周定时任务示例
+
+配合其他插件实现每周排行榜结算与奖励发放：
+
+![每周排行榜结算示例](img/排行榜.png)
 
 #### 单时间点任务
 
@@ -67,8 +75,6 @@ run:
       - "@m &a服务器交流群：123456789"
       - "@m &d祝您游戏愉快~"
 ```
-
-![定时任务示例](https://s2.loli.net/2024/01/15/example2.png)
 
 ### 🎯 智能命令系统
 
@@ -118,7 +124,7 @@ run:
       - "@s"
 ```
 
-![自动重启演示](https://s2.loli.net/2024/01/15/example3.png)
+![自动重启倒计时演示](img/倒计时.png)
 
 ### 🌍 PlaceholderAPI 支持
 
@@ -190,4 +196,4 @@ A: 是的，插件会自动检测运行环境并适配。
 
 ---
 
-* 觉得好用的话点个Star⭐ *
+* 觉得好用的话点个 [Star⭐](https://github.com/polang233/NoTime) *
